@@ -31,6 +31,15 @@ class TestOpenEphysRawIO(
         reader.parse_header()
         reader.header["signal_channels"]["name"][0].startswith("CH")
 
+    def test_spike_count(self):
+        # STp106.0n0.spikes holds 454 spikes, all with sorted_id 0
+        reader = OpenEphysRawIO(dirname=self.get_local_path("openephys/OpenEphys_SampleData_1"))
+        reader.parse_header()
+        assert reader.spike_count(block_index=0, seg_index=0, spike_channel_index=0) == 454
+        spike_timestamps = reader.get_spike_timestamps(block_index=0, seg_index=0, spike_channel_index=0)
+        assert spike_timestamps.size == 454
+        assert spike_timestamps[0] == 52218
+
 
 if __name__ == "__main__":
     unittest.main()

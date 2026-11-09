@@ -447,15 +447,13 @@ class OpenEphysRawIO(BaseRawIO):
         sorted_id = int(sorted_id)
         data_spike = self._spikes_memmap[seg_index][name]
 
-        if t_start is None:
-            t_start = self._first_spk_timestamps[seg_index]
-        if t_stop is None:
-            t_stop = self._last_spk_timestamps[seg_index]
-        ts0 = int(t_start * self._spike_sampling_rate)
-        ts1 = int(t_stop * self._spike_sampling_rate)
-
         ts = data_spike["timestamp"]
-        keep = (data_spike["sorted_id"] == sorted_id) & (ts >= ts0) & (ts <= ts1)
+        keep = data_spike["sorted_id"] == sorted_id
+        # t_start and t_stop are in seconds while the timestamps are in samples
+        if t_start is not None:
+            keep &= ts >= int(t_start * self._spike_sampling_rate)
+        if t_stop is not None:
+            keep &= ts <= int(t_stop * self._spike_sampling_rate)
         return data_spike, keep
 
     def _spike_count(self, block_index, seg_index, unit_index):
