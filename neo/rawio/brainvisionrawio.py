@@ -125,20 +125,21 @@ class BrainVisionRawIO(BaseRawWithBufferApiIO):
             except KeyError:
                 channel_desc = channel_infos[f"ch{c + 1}"]
             # split up channel description, handling default values
+            # fields can be omitted or left empty: the resolution then defaults to 1 and the unit to µV
             cds = channel_desc.split(",")
             name = cds[0]
             if len(cds) >= 2:
                 ref = cds[1]
             else:
                 ref = ""
-            if len(cds) >= 3:
+            if len(cds) >= 3 and cds[2] != "":
                 res = cds[2]
             else:
                 res = "1.0"
-            if len(cds) == 4:
+            if len(cds) >= 4 and cds[3] != "":
                 units = cds[3]
             else:
-                units = "u"
+                units = "uV"
             units = units.replace("µ", "u")  # Brainvision spec for specific unicode
             chan_id = str(c + 1)
             if sig_dtype == np.int16 or sig_dtype == np.int32:
